@@ -1349,13 +1349,14 @@ def buildWedge(monte, chamber, origin, buildParams):
 
 def simulateWedge(matA, matB, matC, tilt, thickness, det, e0=20.0, rotation = 0.0, dose=defaultDose, withPoisson=True, nTraj=defaultNumTraj, sf=defaultCharFluor, bf=defaultBremFluor, xtraParams=defaultXtraParams):
     """simulateWedge(matA, matB, matC, theta, thickness, det, e0=20.0, rotation = 0.0, dose=defaultDose, withPoisson=True, nTraj=defaultNumTraj, sf=defaultCharFluor, bf=defaultBremFluor, xtraParams=defaultXtraParams):
-    Simulate a spectrum from a tilted wedge of `matA` and `thickness` (measured along surface) at an angle `tilt` on the detector det at beam energy e0 (in keV).  \
+    Simulate a spectrum from a tilted layer of matB between matA and matC.  Imagine taking a block consisting of matA (left), a thin layer of matB, and matC (right) 
+    where matB can be tilted.  Thickness is measured at the surface which means the resulting perpendicular thickness of the wedge changes with tilt angle. 
     rotation rotates the sample around the beam axis/origin.  If sf then simulate characteristic secondary fluorescence. If bf then simulate bremsstrahlung secondary \
     fluorescence. nTraj specifies the number of electron trajectories. dose is in nA*sec."""
     params = { 
-        "MaterialA" : material(matA), 
-        "MaterialB" : material(matB),  
-        "MaterialC" : material(matC), 
+        "MaterialA" : matA, 
+        "MaterialB" : matB,  
+        "MaterialC" : matC, 
         "Tilt" : tilt,
         "Thickness" : thickness,
         "Rotation" : rotation

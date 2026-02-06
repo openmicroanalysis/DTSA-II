@@ -24,8 +24,8 @@ ECHO ***** Performing DTSA-II and Relocate-only Build *****
 )
 
 REM Version information
-SET "D2V=2026-01-30"
-SET "NUM_VER=15.1.48"
+SET "D2V=2026-02-06"
+SET "NUM_VER=15.1.49"
 SET "NAME_VER=Polaris"
 
 REM Build paths

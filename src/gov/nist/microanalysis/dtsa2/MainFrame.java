@@ -2647,6 +2647,7 @@ public class MainFrame extends JFrame {
    }
 
    public void updateDisplayedSpectra() {
+      final int prev = jSpecDisplay_Main.spectrumCount();
       jSpecDisplay_Main.clearAllSpectra(false);
       int i = 0;
       for (final ISpectrumData spec : getSelectedSpectra()) {
@@ -2655,7 +2656,9 @@ public class MainFrame extends JFrame {
          if (i >= MAX_DISPLAYED_SPECTRA)
             break;
       }
-      jSpecDisplay_Main.rescaleV();
+      if((prev==0) && (i==1)) {
+         jSpecDisplay_Main.autoScaleV(SpecDisplay.DEFAULT_VZOOM);
+      }
       displaySpectrumProperties();
       jStatusBar_Main.setText(mDataManager.getSelectedCount() + " spectra selected");
    }

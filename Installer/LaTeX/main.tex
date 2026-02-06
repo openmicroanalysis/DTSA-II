@@ -20,7 +20,7 @@ This document describes the procedures to build and deploy NIST DTSA-II, NIST Gr
 \end{description}
 
 \subsection{Core Java Code}
-The DTSA-II tool set consists of multiple different Java libraries and Java applications.  This code is typically compiled using a Java Development Tool (JDK) kit. As of January 2025, the current long-term supported release of the JDK is version 21 and this is used to compile the entire project.
+The DTSA-II tool set consists of multiple different Java libraries and Java applications.  This code is typically compiled using a Java Development Tool (JDK) kit
 
 \begin{description}
     \item[EPQ] The Electron Probe Quantification library.  A Java library that provides the basic X-ray microanalysis algorithms used by DTSA-II, Graf and SEMantics.
@@ -40,7 +40,7 @@ The core projects (DTSA-II and EPQ) are on GitHub and are accessible to anyone (
 
 More sensitive projects are maintained on NIST's GitLab.  NIST's GitLab is accessible only to NIST badge holders who have been given permission to join.
 
-\begin{table}[h!]
+\begin{table}[t]
     \centering
     \begin{tabular}{p{96pt}p{225pt}}
         \emph{Code-base} & \emph{Comment} \\
@@ -60,25 +60,25 @@ More sensitive projects are maintained on NIST's GitLab.  NIST's GitLab is acces
 To facilitate the build process, there is a single file (`Installer/build\_install.bat`) located within the DTSA-II code-base that, when configured correctly, will build all the applications in the DTSA-II tool set.  `build\_install.bat` is executable from the Windows command line.  It will configure and rebuild all the Java source code, rebuild the Windows .exe files which make starting the applications easier on Window and build three different Java executable install programs.
 
 \begin{description}
-    \item[Base] Installs the DTSA-II (required), Relocation (optional) and Glass Database (optional) tools.  Compatible with Apple OS, Windows and Linux.  Requires a Java Runtime Environment 21 or above to execute the tools.
+    \item[Base] Installs the DTSA-II (required), Relocation (optional) and Glass Database (optional) tools.  Compatible with Apple OS, Windows and Linux.  Requires a Java Runtime Environment 24 or above to execute the tools.
     \item[Base With JRE] Same tools as Base but adds a Windows compatible Java Runtime Environment so the user does not need to install one separately.
     \item[Full] Adds Graf, SEMantics and FastQuant to the `Base with JRE` install.  This installer is designed only for distribution to NIST and our OA partners.
 \end{description}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{CmdPmt_build_install.bat.png}
-    \caption{Running the batch file from the command line.}
+    \includegraphics[width=0.7\linewidth]{CmdPmt_build_install.bat.png}
+    \caption{Running the batch file from the command line.  In this example, all the repositories are available in the user's home directory plus `repositories`}
     \label{fig:batch}
 \end{figure}
 
-Towards the top of the `build\_install.bat` file, a number of environmental variables are configured. These variable control various aspects of the build. The `D2V`, `NUM\_VER` and `NAME\_VER` variables are used to track version information.  `D2V` contains the build date and `NUM\_VER` contains a `major.minor.build` version number that is incremented each fresh build.  The `NAME\_VER` is updated alphabetically approximately once-per-year when a major update is performed.  The `minor` version number is updated when the `NAME\_VER` is updated and the `build` version is reset to one.  All `.jar` filename include the `NUM\_VER` to ensure that the libraries match each other.
+Towards the top of the \verb|build_install.bat| file, a number of environmental variables are configured. These variable control various aspects of the build. The \verb|D2V|, \verb|NUM_VER| and \verb|NAME_VER| variables are used to track version information.  \verb|D2V| contains the build date and \verb|NUM_VER| contains a \verb|major.minor.build| version number that is incremented each fresh build.  The \verb|NAME_VER| is updated alphabetically approximately once-per-year when a major update is performed.  The \verb|minor| version number is updated when the \verb|NAME\_VER| is updated and the \verb|build| version is reset to one.  All \verb|.jar| filename include the \verb|NUM\_VER| to ensure that the libraries match each other.
 
 Below the version information is a set of environmental variables that point to the locations of various important build directories.  These are currently configured to build the project on the NIST laptop G909897.  They will need to be updated to reflect the location of build tools on whatever system is used to rebuild the project.
 
 \section{Software Development Tools}
 \subsection{Java Development Kit (JDK)}
-All the applications have been developed in Java and can be compiled with \href{https://adoptium.net/temurin/releases/?os=windows&arch=x64&package=jdk}{JDK 21}.  Java applications can be compiled on any Java supporting operating system.  The resulting '.jar' files can be deployed on any operating system supporting the Java Runtime Environment (JRE). NIST DTSA-II and its sibling applications have all been developed on a Microsoft Windows system.  However, they are known to work on Apple OS and Linux (Fedora).
+All the applications have been developed in Java and can be compiled with \href{https://adoptium.net/temurin/releases/?os=windows&arch=x64&package=jdk}{JDK 24}.  Java applications can be compiled on any Java supporting operating system.  The resulting '.jar' files can be deployed on any operating system supporting the Java Runtime Environment (JRE). NIST DTSA-II and its sibling applications have all been developed on a Microsoft Windows system.  However, they are known to work on Apple OS and Linux (Fedora).
 
 \subsection{Git}
 \href{https://git-scm.com/}{Git} is a distributed version control system used to administer the source code associated with each application.  While it is possible to download the source code directly from the remote repository (usually as a compressed archive), it is generally better to work with a Git tool to maintain synchronization between local and remote repositories.
@@ -88,7 +88,7 @@ All the applications have been developed in Java and can be compiled with \href{
     \item[Alternative GUIs] An extensive list of alternative Git graphical user interfaces is available  \href{https://git-scm.com/downloads/guis}{here}.
 \end{description}
 \subsection{Integrated Development Environment}
-DTSA-II and siblings were developed using the \href{Eclipse Integrated Development Environment}{https://eclipseide.org/} (IDE).  Eclipse is a full featured environment that permits editing, building, debuging and executing Java code projects.
+DTSA-II and siblings were developed using the \href{Eclipse Integrated Development Environment}{https://eclipseide.org/} (IDE).  Eclipse is a full featured environment that permits editing, building, debugging and executing Java code projects.
 \subsection{Maven Build Tool}
 The Java source code is built into an executable form using the Maven build tool.  Maven performs many tedious tasks like downloading the necessary third-party libraries, recompiling code when the executable is stale and bundling the compiled code in .jar files.
 \begin{description}
@@ -102,19 +102,19 @@ The Java source code is built into an executable form using the Maven build tool
 \href{https://launch4j.sourceforge.net/}{Launch4J} builds executable wrappers to facilitate running Java executables in the Windows environment.
 
 
-\begin{table}[h]
+\begin{table}[t]
     \centering
     \begin{tabular}{ll}
          \emph{Tool} & \emph{Version} \\
-         Java JDK & jdk-21.0.5.11-hotspot \\
+         Java JDK & jdk-24.0.1.9-hotspot \\
          GitKraken & 10.6.0 \\
          Maven & 3.9.9 \\
          IzPack & 5.2.3 \\
          Gnu SED & 4.2.1 \\
          Launch4J & 3.5.0 \\         
-         Eclipse &  2024-12 (4.34.0) \\
+         Eclipse &  2025-9 \\
     \end{tabular}
-    \caption{The versions of each application used to rebuild the codebase.  These exact versions are not necessarily required.  However, it is recommended that 1) the version number exceed the version specified in this table; and 2) that only versions with the same major version number are used.}
+    \caption{The versions of each application used to rebuild the codebase.  These exact versions are not necessarily required.  However, it is recommended that 1) the version number exceed the version specified in this table; and 2) that only versions with the same major version number (left-most number) are used.}
     \label{tab:versions}
 \end{table}
 
@@ -126,6 +126,147 @@ The Java source code is built into an executable form using the Maven build tool
     \item Execute `build\_install.bat` from the command line.
 \end{enumerate}
 
+
+\section{Task Details}
+\begin{enumerate}
+    \item Install tools
+    Use the \verb|.msi| installer when one is available.  Fall back to the \verb|*.exe| installer when it is available.
+    \begin{enumerate}
+        \item Install JDK 24 [\url{https://adoptium.net/temurin/releases?version=24&os=windows&arch=x64&mode=filter}]
+        \begin{enumerate}
+            \item Use the default installation settings \emph{except} for "Set or override \verb|JAVA_HOME| variable" which should be \emph{selected}.
+        \end{enumerate}
+        \item Install Notepad++ editor [\url{https://notepad-plus-plus.org/downloads/}] from the \verb|.msi| file.
+        \item Install latest GIT [\url{https://git-scm.com/install/windows}].  Accept all the default settings except replace the selection of the Vim editor as default editor with the Notepad++ editor.
+        \item Install Maven [\url{https://maven.apache.org/install.html}].
+        \begin{enumerate}
+            \item The Maven install involves downloading a ZIP file containing the binary executable files.  Copy the contents of this file into \verb|c:\programs|.  
+            \item From the start menu, type ``enviro'' and select ``Edit the system environmental variables.''
+            \item In the "System Properties" dialog, select the ``Environmental Variables..'' button.
+            \item In the ``Environmental Variables'' dialog add the path to the Maven ``bin'' directory - something like \verb|c:\programs\apache-maven-3.9.9\bin|.
+            \item Use the command line to check that Maven has been installed correctly. \verb|> mvn -v|
+        \end{enumerate}
+        \item Install latest IzPack [\url{https://izpack.org/downloads/}].
+        \begin{enumerate}
+            \item IzPack is only available as a \verb|.jar| file.  Usually, you can double click a \verb|.jar| file to install it.  Sometimes it is necessary to use the command line, change to the directory containing the jar file and use the \verb|java -jar izpack??.jar| as instructed on the download page.
+            \item \emph{Do not accept the default installation directory}.  Instead install IzPack into \verb|c:\IZPack|.\end{enumerate}
+        \item Install Gnu SED [\url{https://gnuwin32.sourceforge.net/packages/sed.htm}]
+        \item Install Launch4J [\url{https://sourceforge.net/projects/launch4j/files/launch4j-3/}]  Launch4J is a Java executable creator for Windows.
+        \begin{enumerate}
+            \item Download the installer \verb|.exe| file and run it.  Accept the default installation options.
+        \end{enumerate}
+    \end{enumerate}
+    \item Download repositories into a common directory. I'd suggest your \verb|c:\Users\your-user| as the base directory.  You can use either a GUI GIT client or the command line version.  The command line version is simplest in the one-off case.
+
+    Useful commands:
+    \begin{itemize}
+        \item \verb|cd XXX| Change directory to \verb|XXX|
+        \item \verb|cd ..| Change to one directory closer to the root directory
+        \item \verb|C:|  Make the \verb|C:| drive the active drive
+        \item \verb|md XXX| Create a new directory named \verb|XXX| in the current directory.
+        \item The current directory can be read off the command line.  It is the directory listed before the \verb|>| caret.
+    \end{itemize}
+    
+    \begin{enumerate}
+        \item You will be able to download \verb|DTSA-II| and \verb|epq| packages without logging into GitHub because they are public projects.
+        \item You will need to create an "Access Token" on \url{https://gitlab.nist.gov}.  Log into GitLab using your PIV card.  Click on the icon representing your settings on the top-right of the left most panel on the home page and select the ``Preferences'' menu item. This will replace the left panel with a menu containing an ``Access token'' item.  Select it.  Select the ``Add new token'' button and create a new token with ``api'' and ``read\_user`` privileges.  When you first attempt to download a repository from GitLab (line \ref{clone_graf} below) you will be asked for credentials.  Provide your long NIST email address and paste the token into the Token box.
+        \item \verb|md repositories|
+        \item \verb|cd repositories|
+        \item \verb|git clone https://github.com/usnistgov/DTSA-II |
+        \item \verb|git clone https://github.com/usnistgov/epq|
+        \item \verb|git clone https://gitlab.nist.gov/gitlab/nritchie/graf|
+        \label{clone_graf}
+        \item \verb|git clone https://github.com/usnistgov/JythonGUI|
+        \item \verb|git clone https://gitlab.nist.gov/gitlab/nritchie/nist-glass-database|
+        \item \verb|git clone https://gitlab.nist.gov/gitlab/nritchie/semantics|
+        \item \verb|git clone https://gitlab.nist.gov/gitlab/nritchie/fastquant|
+    \end{enumerate}
+    \item If you already have a copy of the repositories on your system, you can freshen them to the latest version using these commands.
+    \item Each time to update repository contents.
+    \begin{verbatim}
+        cd repositories
+        cd DTSA-II
+        git pull origin
+        cd ..\epq
+        git pull origin
+        cd ..\JythonGUI
+        git pull origin
+        cd ..\graf
+        git pull origin
+        cd ..\epq
+        git pull origin
+        cd ..\semantics
+        git pull origin
+        cd ..\fastquant
+        git pull origin
+    \end{verbatim}
+    Note: If these commands fail you may have to perform the following commands to configure git.
+    \begin{verbatim}
+        cd repositories
+        cd DTSA-II
+        git remote add origin https://github.com/usnistgov/DTSA-II
+        cd ..\epq
+        git remote add origin https://github.com/usnistgov/epq
+        cd ..\JythonGUI
+        git remote add origin https://github.com/usnistgov/JythonGUI
+        cd ..\graf
+        git remote add origin https://gitlab.nist.gov/gitlab/nritchie/graf
+        cd ..\nist-glass-database
+        git remote add origin https://gitlab.nist.gov/gitlab/nritchie/nist-glass-database
+        cd ..\semantics
+        git remote add origin https://gitlab.nist.gov/gitlab/nritchie/semantics
+        cd ..\fastquant
+        git remote add origin https://gitlab.nist.gov/gitlab/nritchie/fastquant
+    \end{verbatim}    
+    
+
+    \item Use \verb|Notepad++| to edit \verb|build_install.bat|.
+    \begin{enumerate}
+        \item Edit these lines in the file \verb| "repositories\DTSA II\Installer\build_install.bat" | to reflect the locations of these items on your system.
+        \begin{verbatim}
+REM Build paths
+SET "JDK_PATH=C:\Users\nritchie\AppData\Local\Programs\Eclipse Adoptium\jdk-24.0.1.9-hotspot"
+SET "BPATH=C:\Users\nritchie\repositories"
+SET "IZPACK_HOME=C:\izpack\bin"
+SET "L4J_PATH=C:\Program Files (x86)\Launch4j"
+SET "SED_PATH=C:\Program Files (x86)\GnuWin32\bin"
+SET "DTSA_ARCHIVE_PATH=V:\internal\643_violet\DTSA-II Latest"
+        \end{verbatim}
+        \begin{enumerate}
+            \item Set the \verb|JDK_PATH| to the local installation directory for the JDK.
+            \item Set \verb|BPATH| to the base path containing all the code repositories (DTSA-II, EPQ, Graf, Glass Database, SEMantics, and FastQuant)
+            \item Set \verb|IZPACK_HOME|, \verb|L4J_PATH|, and \verb|SED_PATH| to the locations of the IzPack, Launch4J and sed programs.
+            \item When the build is complete, the updated build artifacts ("Installable JAR files") is copied to the \verb|DTSA_ARCHIVE_PATH|.  This is \verb|\\csf2e.nist.gov\643\internal\643_violet\DTSA-II Latest|.
+        \end{enumerate}
+        \item Determine whether to perform a ``full'' or ``external only'' build
+        \begin{enumerate}
+            \item \verb|SET "FULL_BUILD=True"| for ``full'' build including Graf and SEMantics. (NIST and OA labs only)
+            \item \verb|SET "FULL_BUILD=False"| for a build for general release. (All others)
+        \end{enumerate}
+    \end{enumerate}
+    \item Update version information
+        \begin{verbatim}
+REM Version information
+SET "D2V=2025-08-25"
+SET "NUM_VER=15.1.35"
+SET "NAME_VER=Polaris"
+        \end{verbatim}
+    \begin{enumerate}
+        \item At a minimum, increment the final number in \verb|NUM_VER| and set today's date in \verb|D2V|.
+    \end{enumerate}
+    \item Run \verb|build_install.bat|
+    \begin{enumerate}
+        \item Open a command line \verb|[Windows key]cmd|
+        \item Change directories to \verb|repositories\DTSA II\Installer|
+        \item Run \verb|build_install.bat|
+    \end{enumerate}
+    \item Test the installer.
+    \begin{enumerate}
+        \item The installer requires a Java version 8 runtime.  This is installed on most NIST computers. It is also available at [\url{https://adoptium.net/temurin/releases?version=8&os=any&arch=any}]
+        \item Double clicking the JAR installer file is usually sufficient to execute it. Otherwise you can run the JAR file from the command line using a command like \verb|java -jar dtsa2_Polaris_full_15.1.47.jar| from the directory containing the file \verb|dtsa2_Polaris_full_15.1.47.jar|.
+        \item Check that links the programs have been installed under N in the start menu and that each program starts.
+    \end{enumerate}
+\end{enumerate}
 
 \end{document}
 
