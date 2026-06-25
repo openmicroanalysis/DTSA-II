@@ -510,7 +510,7 @@ public class QuantificationWizard extends JWizardDialog {
                   return;
                if (cb.getSelectedIndex() == (cb.getItemCount() - 1)) {
                   // New material...
-                  final Composition newMat = MaterialsCreator.createMaterial(getWizard(), mSession, false);
+                  final Composition newMat = MaterialsCreator.createMaterial(getWizard(), DTSA2.getSession(), false);
                   if (newMat != null) {
                      final Element el = getElementCell(r);
                      if (newMat.containsElement(el)) {
@@ -1312,7 +1312,7 @@ public class QuantificationWizard extends JWizardDialog {
             assert QuantificationWizard.this.mQuantMode == QuantMode.MLSQ;
             assert LLSQPath.this.getBeamEnergy() > ToSI.keV(0.1);
             assert LLSQPath.this.getBeamEnergy() < ToSI.keV(500.0);
-            jButton_AddDatabase.setEnabled(mSession != null);
+            jButton_AddDatabase.setEnabled(DTSA2.getSession() != null);
             // Clear and reenter all data in this panel...
             jTableModel_Standards.setRowCount(0);
             final Map<Element, ISpectrumData> stds = mQuantUsingStandards.getStandardSpectra();
@@ -1536,7 +1536,7 @@ public class QuantificationWizard extends JWizardDialog {
          }
 
          private void specifyReferenceFromDatabase() {
-            assert mSession != null;
+            assert DTSA2.getSession() != null;
             final TreeMap<Integer, RegionOfInterestSet.RegionOfInterest> rois = new TreeMap<>();
             for (int r = jTable_Reference.getRowCount() - 1; r >= 0; --r)
                if (jTable_Reference.isRowSelected(r))
@@ -1550,7 +1550,7 @@ public class QuantificationWizard extends JWizardDialog {
                   msg.append(elms.toString());
                   final ResultDialog rd = new ResultDialog(QuantificationWizard.this, msg.toString(), true);
                   rd.setSingleSelect(true);
-                  rd.setSpectra(mSession.findReferences(mQuantUsingStandards.getDetector().getDetectorProperties(),
+                  rd.setSpectra(DTSA2.getSession().findReferences(mQuantUsingStandards.getDetector().getDetectorProperties(),
                         FromSI.keV(mQuantUsingStandards.getBeamEnergy()), elms));
                   rd.setLocationRelativeTo(QuantificationWizard.this);
                   if (rd.showDialog()) {
@@ -1583,7 +1583,7 @@ public class QuantificationWizard extends JWizardDialog {
          public void onShow() {
             assert QuantificationWizard.this.mQuantMode == QuantMode.MLSQ;
             // Basic stuff
-            jButton_SpecifyDB.setEnabled(mSession != null);
+            jButton_SpecifyDB.setEnabled(DTSA2.getSession() != null);
             // Fill in available and required references
             int r = 0;
             for (final RegionOfInterestSet.RegionOfInterest roi : mQuantUsingStandards.getUnsatisfiedReferences()) {
@@ -1602,7 +1602,7 @@ public class QuantificationWizard extends JWizardDialog {
             }
             setMessageText("Specify reference spectra (as necessary.)");
             setNextPanel(jWizardPanel_LLSQQuantLine.get());
-            jButton_SpecifyDB.setEnabled(mSession != null);
+            jButton_SpecifyDB.setEnabled(DTSA2.getSession() != null);
             getWizard().enableFinish(false);
          }
 
@@ -1966,7 +1966,7 @@ public class QuantificationWizard extends JWizardDialog {
             public void actionPerformed(ActionEvent arg0) {
                final int[] rows = jTable_Unknown.getSelectedRows();
                final ArrayList<ISpectrumData> specs = new ArrayList<>();
-               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, mSession);
+               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, DTSA2.getSession());
                pd.setLocationRelativeTo(QuantificationWizard.this);
                for (final int row : rows) {
                   final Object spec = jTable_Unknown.getValueAt(row, 0);
@@ -3005,7 +3005,7 @@ public class QuantificationWizard extends JWizardDialog {
          }
 
          private ISpectrumData editSpectrum(ISpectrumData spec, Collection<Element> prevStdized) {
-            return STEMStandardDialog.edit(QuantificationWizard.this, mSession, spec, prevStdized);
+            return STEMStandardDialog.edit(QuantificationWizard.this, spec, prevStdized);
          }
 
          private void init() {
@@ -3084,7 +3084,7 @@ public class QuantificationWizard extends JWizardDialog {
                   final Object obj = mSpectra.get(r);
                   if (obj instanceof ISpectrumData) {
                      final ISpectrumData spec = SpectrumUtils.copy((ISpectrumData) obj);
-                     final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, mSession);
+                     final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, DTSA2.getSession());
                      pd.setLocationRelativeTo(QuantificationWizard.this);
                      pd.addSpectrumProperties(spec.getProperties());
                      pd.setVisible(true);
@@ -3916,7 +3916,7 @@ public class QuantificationWizard extends JWizardDialog {
          }
 
          private void addRowFromDatabase() {
-            if (mSession != null) {
+            if (DTSA2.getSession() != null) {
                final SelectElements se = new SelectElements(QuantificationWizard.this,
                      "Select elements for which to select standards from the database");
                se.setMultiSelect(true);
@@ -3926,7 +3926,7 @@ public class QuantificationWizard extends JWizardDialog {
                final StringBuffer errs = new StringBuffer();
                for (final Element elm : elms)
                   try {
-                     final Collection<Session.SpectrumSummary> res = mSession.findStandards(STEMinSEMPath.this.getDetector().getDetectorProperties(),
+                     final Collection<Session.SpectrumSummary> res = DTSA2.getSession().findStandards(STEMinSEMPath.this.getDetector().getDetectorProperties(),
                            FromSI.keV(STEMinSEMPath.this.getBeamEnergy()), elm);
                      final ResultDialog rd = new ResultDialog(QuantificationWizard.this, "Select a standard spectrum for " + elm.toString(), true);
                      rd.setSingleSelect(true);
@@ -4062,7 +4062,7 @@ public class QuantificationWizard extends JWizardDialog {
                final Object obj = jTableModel_Standards.getValueAt(r, 0);
                if (obj instanceof ISpectrumData) {
                   final ISpectrumData spec = (ISpectrumData) obj;
-                  final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, mSession);
+                  final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, DTSA2.getSession());
                   pd.setLocationRelativeTo(QuantificationWizard.this);
                   pd.addSpectrumProperties(spec.getProperties());
                   pd.setVisible(true);
@@ -4190,7 +4190,7 @@ public class QuantificationWizard extends JWizardDialog {
             assert QuantificationWizard.this.mQuantMode == QuantMode.STEMinSEM;
             assert STEMinSEMPath.this.getBeamEnergy() > ToSI.keV(0.1);
             assert STEMinSEMPath.this.getBeamEnergy() < ToSI.keV(500.0);
-            jButton_AddDatabase.setEnabled(mSession != null);
+            jButton_AddDatabase.setEnabled(DTSA2.getSession() != null);
             // Clear and reenter all data in this panel...
             jTableModel_Standards.setRowCount(0);
             final Map<Element, ISpectrumData> stds = mSTEMinSEMQuant.getStandardSpectra();
@@ -4465,7 +4465,6 @@ public class QuantificationWizard extends JWizardDialog {
    static private final String UNKNOWN_DIR = "Unknowns directory";
 
    private double mDefaultBeamEnergy = ToSI.keV(20.0);
-   private Session mSession;
 
    enum QuantMode {
       NONE, MLSQ, KRATIO, ZETAFACTOR, STEMinSEM
@@ -4510,7 +4509,7 @@ public class QuantificationWizard extends JWizardDialog {
       boolean ok = sp.isDefined(SpectrumProperties.LiveTime) && sp.isDefined(SpectrumProperties.ProbeCurrent)
             && sp.isDefined(SpectrumProperties.BeamEnergy);
       if (!ok) {
-         final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(this, mSession);
+         final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(this, DTSA2.getSession());
          final SpectrumProperties.PropertyId[] required = new SpectrumProperties.PropertyId[]{SpectrumProperties.BeamEnergy,
                SpectrumProperties.ProbeCurrent, SpectrumProperties.LiveTime};
          dlg.setRequiredProperties(Arrays.asList(required));
@@ -4725,7 +4724,7 @@ public class QuantificationWizard extends JWizardDialog {
             DetectorProperties defProps = AppPreferences.getInstance().getDefaultDetector();
             DetectorCalibration defCal = null;
             if (defProps != null) {
-               defCal = mSession.getMostRecentCalibration(defProps);
+               defCal = DTSA2.getSession().getMostRecentCalibration(defProps);
                for (final ISpectrumData spec : mInputSpectra)
                   if (spec.getProperties().getDetector() instanceof EDSDetector) {
                      final EDSDetector det = (EDSDetector) spec.getProperties().getDetector();
@@ -4735,7 +4734,7 @@ public class QuantificationWizard extends JWizardDialog {
                   }
             }
             {
-               final Set<ElectronProbe> eps = mSession.getCurrentProbes();
+               final Set<ElectronProbe> eps = DTSA2.getSession().getCurrentProbes();
                final DefaultComboBoxModel<ElectronProbe> dcmb = new DefaultComboBoxModel<>();
                for (final ElectronProbe pr : eps)
                   dcmb.addElement(pr);
@@ -4759,7 +4758,7 @@ public class QuantificationWizard extends JWizardDialog {
          final ElectronProbe newProbe = (ElectronProbe) jComboBox_Instrument.getSelectedItem();
          final DefaultComboBoxModel<DetectorProperties> dcmb = new DefaultComboBoxModel<>();
          if ((newProbe != null) && (newProbe != getProbe())) {
-            for (final DetectorProperties dp : mSession.getDetectors(newProbe))
+            for (final DetectorProperties dp : DTSA2.getSession().getDetectors(newProbe))
                dcmb.addElement(dp);
             dcmb.setSelectedItem(defDp != null ? defDp : (dcmb.getSize() > 0 ? dcmb.getElementAt(0) : null));
          }
@@ -4771,7 +4770,7 @@ public class QuantificationWizard extends JWizardDialog {
          final DetectorProperties newDet = (DetectorProperties) jComboBox_Detector.getSelectedItem();
          final DefaultComboBoxModel<EDSCalibration> dcmb = new DefaultComboBoxModel<>();
          if ((newDet != null) && ((getDetector() == null) || (newDet != getDetector().getDetectorProperties()))) {
-            for (final DetectorCalibration dc : mSession.getCalibrations(newDet))
+            for (final DetectorCalibration dc : DTSA2.getSession().getCalibrations(newDet))
                if (dc instanceof EDSCalibration)
                   dcmb.addElement((EDSCalibration) dc);
             dcmb.setSelectedItem(defCal != null ? defCal : (dcmb.getSize() > 0 ? dcmb.getElementAt(0) : null));
@@ -4998,7 +4997,7 @@ public class QuantificationWizard extends JWizardDialog {
       }
 
       private void addRowFromDatabase() {
-         if (mSession != null) {
+         if (DTSA2.getSession() != null) {
             final SelectElements se = new SelectElements(QuantificationWizard.this,
                   "Select elements for which to select standards from the database");
             se.setMultiSelect(true);
@@ -5008,7 +5007,7 @@ public class QuantificationWizard extends JWizardDialog {
             final StringBuffer errs = new StringBuffer();
             for (final Element elm : elms)
                try {
-                  final Collection<Session.SpectrumSummary> res = mSession.findStandards(mPath.getDetector().getDetectorProperties(),
+                  final Collection<Session.SpectrumSummary> res = DTSA2.getSession().findStandards(mPath.getDetector().getDetectorProperties(),
                         FromSI.keV(mPath.getBeamEnergy()), elm);
                   final ResultDialog rd = new ResultDialog(QuantificationWizard.this, "Select a standard spectrum for " + elm.toString(), true);
                   rd.setSingleSelect(true);
@@ -5144,7 +5143,7 @@ public class QuantificationWizard extends JWizardDialog {
             final Object obj = jTableModel_Standards.getValueAt(r, 0);
             if (obj instanceof ISpectrumData) {
                final ISpectrumData spec = (ISpectrumData) obj;
-               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, mSession);
+               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QuantificationWizard.this, DTSA2.getSession());
                pd.setLocationRelativeTo(QuantificationWizard.this);
                pd.addSpectrumProperties(spec.getProperties());
                pd.setVisible(true);
@@ -5261,14 +5260,6 @@ public class QuantificationWizard extends JWizardDialog {
     */
    public String getResultHTML() {
       return mPath.toHTML();
-   }
-
-   public void setSession(Session ses) {
-      mSession = ses;
-   }
-
-   public Session getSession() {
-      return mSession;
    }
 
    /**

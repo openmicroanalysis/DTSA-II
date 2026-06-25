@@ -46,7 +46,6 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import gov.nist.microanalysis.EPQDatabase.Session;
 import gov.nist.microanalysis.EPQLibrary.Composition;
 import gov.nist.microanalysis.EPQLibrary.ConductiveCoating;
 import gov.nist.microanalysis.EPQLibrary.DuaneHuntLimit;
@@ -329,12 +328,11 @@ public class MakeStandardDialog extends JWizardDialog {
 				public void focusLost(final FocusEvent e) {
 					final String name = jTextField_Material.getText();
 					Composition res = null;
-					if (mSession != null)
-						try {
-							res = mSession.findStandard(name);
-						} catch (final SQLException e1) {
-							// Ignore it...
-						}
+					try {
+						res = DTSA2.getSession().findStandard(name);
+					} catch (final SQLException e1) {
+						// Ignore it...
+					}
 					if (res == null)
 						try {
 							res = MaterialFactory.createCompound(name);
@@ -361,7 +359,7 @@ public class MakeStandardDialog extends JWizardDialog {
 			jButton_Material.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
-					final Composition res = MaterialsCreator.editMaterial(MakeStandardDialog.this, mMaterial, mSession,
+					final Composition res = MaterialsCreator.editMaterial(MakeStandardDialog.this, mMaterial, DTSA2.getSession(),
 							false);
 					if (res != null)
 						updateMaterialField(res);
@@ -409,7 +407,7 @@ public class MakeStandardDialog extends JWizardDialog {
 
 		public SpectrumProperties editSpectrumProperties(final SpectrumProperties sp) {
 			final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(
-					MakeStandardDialog.this, mSession);
+					MakeStandardDialog.this, DTSA2.getSession());
 			final SpectrumProperties.PropertyId[] required = new SpectrumProperties.PropertyId[] {
 					SpectrumProperties.BeamEnergy, SpectrumProperties.ProbeCurrent, SpectrumProperties.LiveTime };
 			dlg.setRequiredProperties(Arrays.asList(required));
@@ -970,7 +968,6 @@ public class MakeStandardDialog extends JWizardDialog {
 	private final SpecialPanel mSpecialPanel = new SpecialPanel(this);
 	private final ReferencePanel mReferencePanel = new ReferencePanel(this);
 
-	private final Session mSession;
 	private Composition mMaterial = new Composition();
 	private final ArrayList<ISpectrumData> mSpectra = new ArrayList<>();
 	private final ArrayList<Boolean> mSelected = new ArrayList<>();
@@ -990,9 +987,8 @@ public class MakeStandardDialog extends JWizardDialog {
 	private final Set<RegionOfInterest> mROI = new HashSet<>();
 	private final Set<Element> mStrip = new TreeSet<>();
 
-	public MakeStandardDialog(final Frame frame, final Session session) {
+	public MakeStandardDialog(final Frame frame) {
 		super(frame, "Build standard bundle", true);
-		mSession = session;
 		initialize();
 		pack();
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
