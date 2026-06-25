@@ -66,7 +66,6 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import gov.nist.microanalysis.EPQDatabase.ReferenceDatabase;
-import gov.nist.microanalysis.EPQDatabase.Session;
 import gov.nist.microanalysis.EPQLibrary.Composition;
 import gov.nist.microanalysis.EPQLibrary.CompositionFromKRatios;
 import gov.nist.microanalysis.EPQLibrary.CompositionFromKRatios.ElementByDifference;
@@ -267,7 +266,7 @@ public class OptimizationWizard extends JWizardDialog {
             DetectorProperties defProps = AppPreferences.getInstance().getDefaultDetector();
             DetectorCalibration defCal = null;
             if (defProps != null) {
-               defCal = mSession.getMostRecentCalibration(defProps);
+               defCal = DTSA2.getSession().getMostRecentCalibration(defProps);
                for (final ISpectrumData spec : DataManager.getInstance().getSelected())
                   if (spec.getProperties().getDetector() instanceof EDSDetector) {
                      final EDSDetector det = (EDSDetector) spec.getProperties().getDetector();
@@ -277,7 +276,7 @@ public class OptimizationWizard extends JWizardDialog {
                   }
             }
             {
-               final Set<ElectronProbe> eps = mSession.getCurrentProbes();
+               final Set<ElectronProbe> eps = DTSA2.getSession().getCurrentProbes();
                final DefaultComboBoxModel<ElectronProbe> dcmb = new DefaultComboBoxModel<>();
                for (final ElectronProbe pr : eps)
                   dcmb.addElement(pr);
@@ -333,7 +332,7 @@ public class OptimizationWizard extends JWizardDialog {
          if (newProbe != null) {
             final DefaultComboBoxModel<DetectorProperties> dcmb = new DefaultComboBoxModel<>();
             jTextField_BeamEnergy.initialize(15.0, FromSI.keV(newProbe.getMinBeamEnergy()), FromSI.keV(newProbe.getMaxBeamEnergy()));
-            for (final DetectorProperties dp : mSession.getDetectors(newProbe))
+            for (final DetectorProperties dp : DTSA2.getSession().getDetectors(newProbe))
                dcmb.addElement(dp);
             dcmb.setSelectedItem(defDp != null ? defDp : (dcmb.getSize() > 0 ? dcmb.getElementAt(0) : null));
             jComboBox_Detector.setModel(dcmb);
@@ -345,7 +344,7 @@ public class OptimizationWizard extends JWizardDialog {
          final DetectorProperties newDet = (DetectorProperties) jComboBox_Detector.getSelectedItem();
          final DefaultComboBoxModel<EDSCalibration> dcmb = new DefaultComboBoxModel<>();
          if (newDet != null) {
-            for (final DetectorCalibration dc : mSession.getCalibrations(newDet))
+            for (final DetectorCalibration dc : DTSA2.getSession().getCalibrations(newDet))
                if (dc instanceof EDSCalibration)
                   dcmb.addElement((EDSCalibration) dc);
             dcmb.setSelectedItem(defCal != null ? defCal : (dcmb.getSize() > 0 ? dcmb.getElementAt(0) : null));
@@ -426,7 +425,7 @@ public class OptimizationWizard extends JWizardDialog {
       private void editCompositionAction() {
          final MaterialsCreator mc = new MaterialsCreator(OptimizationWizard.this, "Estimate composition", true);
          mc.setMaterial(mEstComposition);
-         mc.setSession(mSession);
+         mc.setSession(DTSA2.getSession());
          mc.setInhibitUpdate();
          mc.setRequireDensity(false);
          mc.setLocationRelativeTo(OptimizationWizard.this);
@@ -1418,7 +1417,7 @@ public class OptimizationWizard extends JWizardDialog {
 
       @Override
       public void onShow() {
-         final ReferenceDatabase rd = ReferenceDatabase.getInstance(mSession);
+         final ReferenceDatabase rd = ReferenceDatabase.getInstance(DTSA2.getSession());
          mQuantOutline.applySuggestedReferences(rd.getDatabase());
          jTable_Reference.setModel(new ReferenceTableModel());
          setNextPanel(jWizardPanel_SpecifyUnknown);
@@ -1445,9 +1444,9 @@ public class OptimizationWizard extends JWizardDialog {
          @Override
          public void actionPerformed(ActionEvent arg0) {
             if (mEstComposition != null)
-               updateComposition(MaterialsCreator.editMaterial(OptimizationWizard.this, mEstComposition, mSession, false));
+               updateComposition(MaterialsCreator.editMaterial(OptimizationWizard.this, mEstComposition, DTSA2.getSession(), false));
             else
-               updateComposition(MaterialsCreator.createMaterial(OptimizationWizard.this, mSession, false));
+               updateComposition(MaterialsCreator.createMaterial(OptimizationWizard.this, DTSA2.getSession(), false));
             update();
          }
       }
@@ -1631,7 +1630,7 @@ public class OptimizationWizard extends JWizardDialog {
 
          @Override
          public void actionPerformed(final ActionEvent arg0) {
-            mEstComposition = MaterialsCreator.editMaterial(OptimizationWizard.this, mEstComposition, mSession, false);
+            mEstComposition = MaterialsCreator.editMaterial(OptimizationWizard.this, mEstComposition, DTSA2.getSession(), false);
             jTextField_Unknown.setText(mEstComposition != null ? mEstComposition.getName() : "N/A");
             OptimizationWizard.this.clearMessageText();
             OptimizationWizard.this.setMessageText("Select one ROI per element...");
@@ -1860,7 +1859,6 @@ public class OptimizationWizard extends JWizardDialog {
    private double mBeamEnergy = 15.0;
    private Composition mEstComposition = new Composition(new Element[0], new double[0], UNKNOWN);
    private final StandardsDatabase2 mStandards = DTSA2.getStandardsDatabase();
-   private final Session mSession;
    private CompositionOptimizer mOptimizer;
 
    private QuantificationOutline mQuantOutline;
@@ -1884,13 +1882,12 @@ public class OptimizationWizard extends JWizardDialog {
     * @param detector
     * @param session
     */
-   public OptimizationWizard(final Frame owner, final EDSDetector detector, final Session session) {
+   public OptimizationWizard(final Frame owner, final EDSDetector detector) {
       super(owner, "Optimize a measurement", true);
       this.setActivePanel(jWizardPanel_Introduction);
       this.enableFinish(false);
       this.enableNext(true);
       mDetector = detector;
-      mSession = session;
       final Preferences prefs = Preferences.userNodeForPackage(OptimizationWizard.class);
       final String unk = prefs.get(UNKNOWN, null);
       Composition tmp = null;
@@ -1921,12 +1918,11 @@ public class OptimizationWizard extends JWizardDialog {
 
    private Composition strToComp(final String compStr) {
       Composition comp = null;
-      if (mSession != null)
-         try {
-            comp = mSession.findStandard(compStr.trim());
-         } catch (final SQLException e1) {
-            // assume it isn't in the database...
-         }
+      try {
+         comp = DTSA2.getSession().findStandard(compStr.trim());
+      } catch (final SQLException e1) {
+         // assume it isn't in the database...
+      }
       if (comp == null)
          try {
             comp = MaterialFactory.createCompound(compStr);
@@ -1936,7 +1932,7 @@ public class OptimizationWizard extends JWizardDialog {
       if (comp == null) {
          final Composition tmp = new Composition();
          tmp.setName(compStr);
-         comp = MaterialsCreator.editMaterial(OptimizationWizard.this, tmp, mSession, false);
+         comp = MaterialsCreator.editMaterial(OptimizationWizard.this, tmp, DTSA2.getSession(), false);
       }
       return comp;
    }

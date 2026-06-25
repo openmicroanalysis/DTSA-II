@@ -123,13 +123,13 @@ public class DTSA2 {
    }
 
    static public StandardsDatabase2 getStandardsDatabase() {
-      final File path = new File(HTMLReport.getBasePath(), STANDARDS_DB2);
+      final File path = new File(AppPreferences.getInstance().getBaseReportPath(), STANDARDS_DB2);
       try {
          return StandardsDatabase2.read(path);
       } catch (final Throwable th1) {
          // Try the backup
          try {
-            final StandardsDatabase2 sdb = StandardsDatabase2.read(new File(HTMLReport.getBasePath(), STANDARDS_BAK2));
+            final StandardsDatabase2 sdb = StandardsDatabase2.read(new File(AppPreferences.getInstance().getBaseReportPath(), STANDARDS_BAK2));
             sdb.write(path);
             return sdb;
          } catch (final Throwable th2) {
@@ -163,20 +163,20 @@ public class DTSA2 {
    }
 
    static public void updateStandardsDatabase(StandardsDatabase2 sdb) {
-      final File path = new File(HTMLReport.getBasePath(), STANDARDS_DB2);
+      final File path = new File(AppPreferences.getInstance().getBaseReportPath(), STANDARDS_DB2);
       if (path.isFile())
-         path.renameTo(new File(HTMLReport.getBasePath(), STANDARDS_BAK2));
+         path.renameTo(new File(AppPreferences.getInstance().getBaseReportPath(), STANDARDS_BAK2));
       try {
          sdb.write(path);
       } catch (final IOException e) {
          ErrorDialog.createErrorMessage(DTSA2.getInstance(null).getFrame(), "Saving standards database", e);
       }
    }
-
+   
    static public synchronized Session getSession() {
       try {
          if (mSession == null) {
-            final String path = HTMLReport.getBasePath() + File.separatorChar + "Database v2";
+            final String path = AppPreferences.getInstance().getBaseReportPath() + File.separatorChar + "Database v2";
             final Session ses = new Session(path);
             if (ses.isNew())
                try {
@@ -258,7 +258,7 @@ public class DTSA2 {
          }
       }
       // System.err.println("Script File: " + scriptFile);
-      AppPreferences.getInstance();
+      // AppPreferences.getInstance();
       if (sOS == OS.OS_MAC) {
          System.setProperty("apple.laf.useScreenMenuBar", "true");
          System.setProperty("apple.laf.smallTabs", "true");

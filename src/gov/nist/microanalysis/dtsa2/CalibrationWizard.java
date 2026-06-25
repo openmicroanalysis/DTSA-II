@@ -102,11 +102,6 @@ public class CalibrationWizard extends JWizardDialog {
    private static final String[] STANDARDS = new String[]{"Mn standard", "Cu standard", "Zn standard", "Fe standard", "BAM CRM standard", "K3189",
          "BAM EDS-TM002"};
 
-   private Session getSession() {
-      return DTSA2.getSession();
-
-   }
-
    public class ModePanel extends JWizardPanel {
 
       private static final long serialVersionUID = 7994619405938718356L;
@@ -224,7 +219,7 @@ public class CalibrationWizard extends JWizardDialog {
          pb.addSeparator("Instrument and Detector", cc.xyw(1, 1, 3));
          pb.addLabel("Instrument", cc.xy(1, 3));
          pb.add(jComboBox_Instrument, cc.xy(3, 3));
-         final DefaultComboBoxModel<ElectronProbe> dcbm = new DefaultComboBoxModel<>(getSession().getCurrentProbes().toArray(new ElectronProbe[0]));
+         final DefaultComboBoxModel<ElectronProbe> dcbm = new DefaultComboBoxModel<>(DTSA2.getSession().getCurrentProbes().toArray(new ElectronProbe[0]));
          jComboBox_Instrument.setModel(dcbm);
          jComboBox_Instrument.addActionListener(new ActionListener() {
             @Override
@@ -244,7 +239,7 @@ public class CalibrationWizard extends JWizardDialog {
             jComboBox_Instrument.setSelectedItem(dp.getOwner());
          final Object obj = jComboBox_Instrument.getSelectedItem();
          if (obj instanceof ElectronProbe) {
-            final EDSDetector[] dets = getSession().getCurrentEDSDetectors((ElectronProbe) obj).toArray(new EDSDetector[0]);
+            final EDSDetector[] dets = DTSA2.getSession().getCurrentEDSDetectors((ElectronProbe) obj).toArray(new EDSDetector[0]);
             final DefaultComboBoxModel<EDSDetector> dcbm = new DefaultComboBoxModel<>(dets);
             jComboBox_Detector.setModel(dcbm);
             if (dp != null)
@@ -301,8 +296,8 @@ public class CalibrationWizard extends JWizardDialog {
 
       private static final long serialVersionUID = -5082875641613694408L;
 
-      public SpectrumProperties editSpectrumProperties(SpectrumProperties sp, Session ses) {
-         final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(CalibrationWizard.this, ses);
+      public SpectrumProperties editSpectrumProperties(SpectrumProperties sp) {
+         final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(CalibrationWizard.this, DTSA2.getSession());
          final SpectrumProperties.PropertyId[] required = new SpectrumProperties.PropertyId[]{SpectrumProperties.BeamEnergy,
                SpectrumProperties.ProbeCurrent, SpectrumProperties.LiveTime};
          dlg.setRequiredProperties(Arrays.asList(required));
@@ -318,7 +313,7 @@ public class CalibrationWizard extends JWizardDialog {
       }
 
       private void initialize() {
-         final Session ses = getSession();
+         final Session ses = DTSA2.getSession();
          final Vector<Object> standards = new Vector<>();
          for (final String std : STANDARDS)
             try {
@@ -368,7 +363,7 @@ public class CalibrationWizard extends JWizardDialog {
                   final ISpectrumData ref = sfc.getSpectra()[0];
                   double e0 = ref.getProperties().getNumericWithDefault(SpectrumProperties.BeamEnergy, Double.NaN) * 1.0e3;
                   while (Double.isNaN(e0)) {
-                     ref.getProperties().addAll(editSpectrumProperties(ref.getProperties(), getSession()));
+                     ref.getProperties().addAll(editSpectrumProperties(ref.getProperties()));
                      e0 = ref.getProperties().getNumericWithDefault(SpectrumProperties.BeamEnergy, Double.NaN) * 1.0e3;
                   }
                   final boolean ok = (e0 >= 1.5e4) || (JOptionPane.showConfirmDialog(CalibrationWizard.this,
@@ -517,7 +512,7 @@ public class CalibrationWizard extends JWizardDialog {
             FileWriter mrFitsFile = null;
             try {
                if (System.getProperty("user.name").equals("nritchie")) {
-                  final File elmFits = new File(HTMLReport.getBasePath(), "mostRecentFit.csv");
+                  final File elmFits = new File(AppPreferences.getInstance().getBaseReportPath(), "mostRecentFit.csv");
                   mrFitsFile = new FileWriter(elmFits, elmFits.exists());
                }
                SpectrumFitResult results = sf.compute();
@@ -671,7 +666,7 @@ public class CalibrationWizard extends JWizardDialog {
          mHTMLResult = results.toHTML();
          jCheckBox_AddToDB.setEnabled(jWizardPanel_FitSpectrum.mFitOrderSelected == 0);
          jCheckBox_AddToDB.setSelected(jWizardPanel_FitSpectrum.mFitOrderSelected == 0);
-         final File elmFits = new File(HTMLReport.getBasePath(), "elementFits.csv");
+         final File elmFits = new File(AppPreferences.getInstance().getBaseReportPath(), "elementFits.csv");
          try (final FileWriter fw = new FileWriter(elmFits, elmFits.exists())) {
             fw.write(results.tabulateResults());
             fw.flush();
@@ -777,7 +772,7 @@ public class CalibrationWizard extends JWizardDialog {
          final Object obj = jWizardPanel_Detector.jComboBox_Detector.getSelectedItem();
          if (obj instanceof DetectorProperties) {
             final DetectorProperties dp = (DetectorProperties) obj;
-            final DetectorCalibration dc = getSession().getMostRecentCalibration(dp);
+            final DetectorCalibration dc = DTSA2.getSession().getMostRecentCalibration(dp);
             if (dc instanceof EDSCalibration) {
                final EDSCalibration ec = (EDSCalibration) dc;
                mFWHM = ec.getLineshape().getFWHMatMnKa();

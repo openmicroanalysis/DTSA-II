@@ -111,7 +111,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import gov.nist.microanalysis.EPQDatabase.ImportDialog;
 import gov.nist.microanalysis.EPQDatabase.SearchWizard;
-import gov.nist.microanalysis.EPQDatabase.Session;
 import gov.nist.microanalysis.EPQLibrary.BremsstrahlungAnalytic;
 import gov.nist.microanalysis.EPQLibrary.Composition;
 import gov.nist.microanalysis.EPQLibrary.DerivedSpectrum;
@@ -1344,8 +1343,7 @@ public class MainFrame extends JFrame {
       jMenuItem_SearchDB.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
-            final Session ses = DTSA2.getSession();
-            final SearchWizard sw = new SearchWizard(ses);
+            final SearchWizard sw = new SearchWizard(DTSA2.getSession());
             sw.setModal(true);
             sw.setLocationRelativeTo(MainFrame.this);
             sw.setVisible(true);
@@ -1891,7 +1889,7 @@ public class MainFrame extends JFrame {
       jSpecDisplay_Main.setDropTarget(new DropTarget(jSpecDisplay_Main, DnDConstants.ACTION_COPY_OR_MOVE, dropTargetListener, true, null));
       jList_Spectrum.setDropTarget(new DropTarget(jList_Spectrum, DnDConstants.ACTION_COPY_OR_MOVE, dropTargetListener, true, null));
 
-      final File colorCsv = new File(HTMLReport.getBasePath(), "specColors.csv");
+      final File colorCsv = new File(AppPreferences.getInstance().getBaseReportPath(), "specColors.csv");
       if (colorCsv.isFile()) {
          final Color[] colors = SpecDisplay.loadColors(colorCsv);
          if (colors != null)
@@ -1972,8 +1970,8 @@ public class MainFrame extends JFrame {
       jStatusBar_Main.setText("Welcome to " + DTSA2.APP_NAME + " - " + DTSA2.getRevision(DTSA2.class) + " revision");
    }
 
-   public SpectrumProperties doEditSpectrumProperties(Set<SpectrumProperties> sps, Session ses) {
-      final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(this, ses);
+   public SpectrumProperties doEditSpectrumProperties(Set<SpectrumProperties> sps) {
+      final SpectrumPropertyPanel.PropertyDialog dlg = new SpectrumPropertyPanel.PropertyDialog(this, DTSA2.getSession());
       for (final SpectrumProperties sp : sps)
          dlg.addSpectrumProperties(sp);
       dlg.setLocationRelativeTo(this);
@@ -2075,7 +2073,10 @@ public class MainFrame extends JFrame {
       final Runnable r = new Runnable() {
          @Override
          public void run() {
-            AppPreferences.editPreferences(MainFrame.this);
+            AppPreferences.getInstance();
+            final DTSA2PreferencesDialog dlg = new DTSA2PreferencesDialog(MainFrame.this);
+            dlg.setLocationRelativeTo(MainFrame.this);
+            dlg.setVisible(true);
             initDetectors();
             updateDetector(null);
          }
@@ -2205,7 +2206,6 @@ public class MainFrame extends JFrame {
 
    private void importSpectra(final ISpectrumData[] specs, boolean scrollTo) {
       if (specs != null) {
-         final Session ses = DTSA2.getSession();
          final DetectorProperties det = AppPreferences.getInstance().getDefaultDetector();
          final ArrayList<String> list = new ArrayList<String>();
          boolean dontApplyToAll = false;
@@ -2213,7 +2213,7 @@ public class MainFrame extends JFrame {
             ISpectrumData sd = specs[j];
             if (det != null) {
                final Date ts = sd.getProperties().getTimestampWithDefault(SpectrumProperties.AcquisitionTime, new Date());
-               final DetectorCalibration dc = ses.getSuitableCalibration(det, ts);
+               final DetectorCalibration dc = DTSA2.getSession().getSuitableCalibration(det, ts);
                if (dc instanceof EDSCalibration) {
                   boolean assign = SpectrumUtils.areCalibratedSimilar(dc.getProperties(), sd, AppPreferences.DEFAULT_TOLERANCE);
                   if (!dontApplyToAll) {
@@ -2496,7 +2496,7 @@ public class MainFrame extends JFrame {
             try {
                final List<ISpectrumData> specs = getSelectedSpectra();
                if (specs.size() > 0) {
-                  final MakeStandardDialog msd = new MakeStandardDialog(MainFrame.this, DTSA2.getSession());
+                  final MakeStandardDialog msd = new MakeStandardDialog(MainFrame.this);
                   for (final ISpectrumData sd : specs)
                      msd.addSpectrum(sd);
                   msd.setLocationRelativeTo(MainFrame.this);
@@ -2591,7 +2591,7 @@ public class MainFrame extends JFrame {
             for (final ISpectrumData sd : getSelectedSpectra())
                sps.add(sd.getProperties());
             if (sps.size() > 0) {
-               final SpectrumProperties res = doEditSpectrumProperties(sps, DTSA2.getSession());
+               final SpectrumProperties res = doEditSpectrumProperties(sps);
                final EDSDetector det = (res.getDetector() instanceof EDSDetector ? (EDSDetector) res.getDetector() : null);
                final List<ISpectrumData> sel = new ArrayList<>();
                for (final ISpectrumData sd : getSelectedSpectra()) {
@@ -2619,7 +2619,6 @@ public class MainFrame extends JFrame {
          public void run() {
             final QuantificationWizard wiz = new QuantificationWizard(MainFrame.this, DataManager.getInstance().getSelected());
             wiz.setLocationRelativeTo(MainFrame.this);
-            wiz.setSession(DTSA2.getSession());
             if (wiz.showWizard() == JWizardDialog.FINISHED) {
                final List<ISpectrumData> resSpectra = wiz.getResultSpectra();
                if (resSpectra.size() > 0) {
@@ -3440,7 +3439,7 @@ public class MainFrame extends JFrame {
                final DetectorProperties dp = (DetectorProperties) obj;
                final DetectorCalibration dc = DTSA2.getSession().getMostRecentCalibration(dp);
                final EDSDetector det = EDSDetector.createDetector((DetectorProperties) obj, (EDSCalibration) dc);
-               final OptimizationWizard eow = new OptimizationWizard(MainFrame.this, det, DTSA2.getSession());
+               final OptimizationWizard eow = new OptimizationWizard(MainFrame.this, det);
                centerDialog(eow);
                eow.setVisible(true);
                if (eow.isFinished()) {
@@ -3458,7 +3457,7 @@ public class MainFrame extends JFrame {
       final Runnable th = new Runnable() {
          @Override
          public void run() {
-            final QCWizard cw = new QCWizard(MainFrame.this, DTSA2.getSession());
+            final QCWizard cw = new QCWizard(MainFrame.this);
             final Object obj = MainFrame.this.jComboBox_Detector.getSelectedItem();
             assert (obj instanceof DetectorProperties);
             cw.setDetector((DetectorProperties) obj);

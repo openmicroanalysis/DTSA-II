@@ -329,9 +329,9 @@ public class STEMStandardDialog extends JDialog {
       jTextField_MassThickness.setText(df.format(val));
    }
 
-   public static ISpectrumData edit(Window parent, Session sess, ISpectrumData spec, Collection<Element> prevStdized) {
+   public static ISpectrumData edit(Window parent, ISpectrumData spec, Collection<Element> prevStdized) {
       ISpectrumData dup = SpectrumUtils.copy(spec);
-      STEMStandardDialog ssd = new STEMStandardDialog(parent, sess);
+      STEMStandardDialog ssd = new STEMStandardDialog(parent, DTSA2.getSession());
       ssd.initialize(dup, prevStdized);
       ssd.setLocationRelativeTo(parent);
       ssd.setVisible(true);

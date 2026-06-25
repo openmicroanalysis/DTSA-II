@@ -43,7 +43,6 @@ import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
-import gov.nist.microanalysis.EPQDatabase.Session;
 import gov.nist.microanalysis.EPQLibrary.Composition;
 import gov.nist.microanalysis.EPQLibrary.EPQException;
 import gov.nist.microanalysis.EPQLibrary.ElectronRange;
@@ -191,7 +190,6 @@ public class SimulationWizard extends JWizardDialog {
 	private final SimVP mVariablePressure = new SimVP(this);
 	private final JWizardProgressPanel<ISpectrumData[]> mProgress = new JWizardProgressPanel<>(this,
 			"Computing the requested spectra...", mThread);
-	private Session mSession;
 
 	private class SimulationThread extends SwingWorker<ISpectrumData[], Integer> {
 		private SimulationMode mMode;
@@ -1372,7 +1370,6 @@ public class SimulationWizard extends JWizardDialog {
 		private SimMode(SimulationWizard wiz) {
 			super(wiz, "Specify the simulation mode");
 			initialize();
-			mSession = DTSA2.getSession();
 		}
 
 		private void initialize() {
@@ -1582,13 +1579,13 @@ public class SimulationWizard extends JWizardDialog {
 			if (dp != null) {
 				EDSDetector xrd = null;
 				final String calStr = userPref.get("Calibration", null);
-				for (final DetectorCalibration dc : mSession.getCalibrations(dp))
+				for (final DetectorCalibration dc : DTSA2.getSession().getCalibrations(dp))
 					if (dc.toString().equals(calStr) && (dc instanceof EDSCalibration)) {
 						xrd = EDSDetector.createDetector(dp, (EDSCalibration) dc);
 						break;
 					}
 				if (xrd == null) {
-					final DetectorCalibration dc = mSession.getSuitableCalibration(dp,
+					final DetectorCalibration dc = DTSA2.getSession().getSuitableCalibration(dp,
 							new Date(System.currentTimeMillis()));
 					if (dc instanceof EDSCalibration)
 						xrd = EDSDetector.createDetector(dp, (EDSCalibration) dc);
@@ -1606,7 +1603,7 @@ public class SimulationWizard extends JWizardDialog {
 			pb.addLabel("Instrument", cc.xy(2, 3));
 			pb.add(jComboBox_Instrument, cc.xyw(4, 3, 4));
 			final DefaultComboBoxModel<ElectronProbe> dcbm = new DefaultComboBoxModel<>(
-					mSession.getCurrentProbes().toArray(new ElectronProbe[0]));
+					DTSA2.getSession().getCurrentProbes().toArray(new ElectronProbe[0]));
 			jComboBox_Instrument.setModel(dcbm);
 
 			jComboBox_Instrument.addActionListener(new ActionListener() {
@@ -1655,7 +1652,7 @@ public class SimulationWizard extends JWizardDialog {
 		private void updateDetectors(EDSDetector det) {
 			if (det != null) {
 				jComboBox_Instrument.setSelectedItem(det.getOwner());
-				final Set<DetectorProperties> dets = mSession.getDetectors(det.getOwner());
+				final Set<DetectorProperties> dets = DTSA2.getSession().getDetectors(det.getOwner());
 				final DefaultComboBoxModel<DetectorProperties> dcbm = new DefaultComboBoxModel<>(
 						dets.toArray(new DetectorProperties[0]));
 				dcbm.setSelectedItem(det.getDetectorProperties());
@@ -1664,7 +1661,7 @@ public class SimulationWizard extends JWizardDialog {
 			} else if (jComboBox_Instrument.getSelectedItem() instanceof ElectronProbe) {
 				final Object selDet = jComboBox_Detector.getSelectedItem();
 				final ElectronProbe ep = (ElectronProbe) jComboBox_Instrument.getSelectedItem();
-				final Set<DetectorProperties> dets = mSession.getDetectors(ep);
+				final Set<DetectorProperties> dets = DTSA2.getSession().getDetectors(ep);
 				final DefaultComboBoxModel<DetectorProperties> dcbm = new DefaultComboBoxModel<>(
 						dets.toArray(new DetectorProperties[0]));
 				if (dets.contains(selDet))
@@ -1736,13 +1733,13 @@ public class SimulationWizard extends JWizardDialog {
 			Object last = det != null ? last = det.getCalibration() : jComboBox_Calibration.getSelectedItem();
 			if (jComboBox_Detector.getSelectedItem() instanceof DetectorProperties) {
 				final DetectorProperties dp = (DetectorProperties) jComboBox_Detector.getSelectedItem();
-				final List<DetectorCalibration> cals = mSession.getCalibrations(dp);
+				final List<DetectorCalibration> cals = DTSA2.getSession().getCalibrations(dp);
 				final DefaultComboBoxModel<DetectorCalibration> dcbm = new DefaultComboBoxModel<>(
 						cals.toArray(new DetectorCalibration[0]));
 				if (cals.contains(last))
 					dcbm.setSelectedItem(last);
 				else
-					dcbm.setSelectedItem(mSession.getSuitableCalibration(dp, new Date(System.currentTimeMillis())));
+					dcbm.setSelectedItem(DTSA2.getSession().getSuitableCalibration(dp, new Date(System.currentTimeMillis())));
 				jComboBox_Calibration.setModel(dcbm);
 			} else
 				jComboBox_Calibration.removeAll();
@@ -2083,7 +2080,7 @@ public class SimulationWizard extends JWizardDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					final Composition comp = MaterialsCreator.editMaterial(getWizard(), mThread.mSubstrateMaterial,
-							mSession, true);
+							DTSA2.getSession(), true);
 					if (comp != null) {
 						final Material m = comp instanceof Material ? (Material) comp
 								: new Material(comp, ToSI.gPerCC(5.0));
@@ -2123,7 +2120,7 @@ public class SimulationWizard extends JWizardDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					final Material m = (Material) MaterialsCreator.editMaterial(getWizard(), mThread.mObjectMaterial,
-							mSession, true);
+							DTSA2.getSession(), true);
 					if (m != null) {
 						if (m.getDensity() < 1.0e-6)
 							ErrorDialog.createErrorMessage(SimulationWizard.this, "Density too low!",

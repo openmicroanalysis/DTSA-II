@@ -9,7 +9,6 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.DateFormat;
@@ -18,11 +17,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.prefs.Preferences;
-
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileSystemView;
 
 import gov.nist.microanalysis.EPQLibrary.EPQException;
 import gov.nist.microanalysis.EPQTools.ErrorDialog;
@@ -44,7 +38,6 @@ import gov.nist.microanalysis.EPQTools.ErrorDialog;
  */
 public class HTMLReport {
 
-   private static final String sfBASE_PATH = "Base Path";
    private final String mReportName;
    private File mFile;
 
@@ -56,26 +49,29 @@ public class HTMLReport {
       boolean useCSS = true;
       {
          final File css = new File(f.getParentFile(), "style.css");
-         if (!css.exists())
+         if (!css.exists()) {
             // Write the style sheet
             try (final PrintWriter osw = new PrintWriter(css)) {
                try (final BufferedReader isr = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("style.css")))) {
-                  for (String str = isr.readLine(); str != null; str = isr.readLine())
+                  for (String str = isr.readLine(); str != null; str = isr.readLine()) {
                      osw.println(str);
+                  }
                }
             } catch (final Exception e) {
                useCSS = false;
             }
+         }
       }
-      if (!f.exists())
+      if (!f.exists()) {
          try {
             final String date = DateFormat.getDateInstance().format(new Date());
             final String time = DateFormat.getTimeInstance().format(new Date());
             try (final PrintWriter pw = new PrintWriter(f)) {
                pw.println("<html>");
                pw.println(" <head>");
-               if (useCSS)
+               if (useCSS) {
                   pw.println("  <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />");
+               }
                pw.println("  <title>" + reportName + " - " + date + "</title>");
                pw.println(" </head>");
                pw.println(" <body>");
@@ -95,19 +91,21 @@ public class HTMLReport {
          } catch (final FileNotFoundException e) {
             throw new Error("Unable to create the report file.");
          }
+      }
       mInstances.put(mReportName, this);
    }
 
    static public synchronized HTMLReport getInstance(String reportName) {
       HTMLReport res = mInstances.get(reportName);
-      if (res == null)
+      if (res == null) {
          res = new HTMLReport(reportName);
+      }
       return res;
    }
 
    public synchronized File getFile() {
       if (mFile == null) {
-         final String base = getBasePath();
+         final String base = AppPreferences.getInstance().getBaseReportPath();
          File file = new File(base);
          assert file.exists();
          assert file.isDirectory();
@@ -125,87 +123,15 @@ public class HTMLReport {
          }
          for (int i = 1; i < 1000; ++i) {
             mFile = new File(subDir, "index" + Integer.toString(i) + ".html");
-            if (!mFile.exists())
+            if (!mFile.exists()) {
                break;
+            }
          }
       }
       return mFile;
    }
 
-   public static String getBasePath() {
-      final String tmp = Preferences.userNodeForPackage(HTMLReport.class).get(sfBASE_PATH, null);
-      final File tmpFile = tmp != null ? new File(tmp) : null;
-      if ((tmp == null) || !(tmpFile.exists() && tmpFile.isDirectory() && tmpFile.canWrite())) {
-         final JFileChooser fc = new JFileChooser();
-         final File file = new File(FileSystemView.getFileSystemView().getDefaultDirectory(), "DTSA-II Reports");
-         final boolean made = file.mkdirs();
-         try {
-            if (file.isDirectory()) {
-               try {
-                  fc.setCurrentDirectory(file);
-               } catch (Exception e) {
-                  fc.setCurrentDirectory(null);
-               }
-            }
-            fc.setDialogType(JFileChooser.SAVE_DIALOG);
-            fc.setDialogTitle("Select a location to store " + DTSA2.APP_NAME + " reports,");
-            // There appears to be a bug with setCurrentDirectory if setFileSelectionMode(DIRECTORIES_ONLY) is called first.
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            boolean ok = false;
-            while (!ok) {
-               if (fc.showDialog(null, "Select") == JFileChooser.APPROVE_OPTION) {
-                  final File result = fc.getSelectedFile();
-                  try {
-                     if(!result.exists()) {
-                        result.mkdirs();
-                     }
-                     ok = false;
-                     if (result.exists() && result.canWrite()) {
-                        final File tester = File.createTempFile("test", ".txt", result);
-                        try {
-                           ok = tester.isFile();
-                        }
-                        finally {
-                           tester.delete();
-                        }
-                        Preferences.userNodeForPackage(HTMLReport.class).put(sfBASE_PATH, result.getCanonicalPath());
-                        return result.getCanonicalPath();
-                     }
-                  } catch (IOException e) {
-                     ErrorDialog.createErrorMessage(null, "Report Directory Creation Error", "The report directory specified is not writable.",
-                           e.getMessage());
-                  }
-               }
-            }
-         } finally {
-            if (made)
-               file.delete();
-         }
-      }
-      return tmp;
-   }
 
-   public static boolean setBasePath(String path) {
-      final File f = new File(path);
-      // Suitable
-      boolean set = f.exists() && f.isDirectory() && f.canWrite();
-      if (set) {
-         // Not same as previous
-         String oldPath = Preferences.userNodeForPackage(HTMLReport.class).get(sfBASE_PATH, null);
-         if (oldPath != null) {
-            final File old = new File(oldPath);
-            set = !f.equals(old);
-         }
-      }
-      if (set) {
-         JOptionPane.showMessageDialog(DTSA2.getInstance(null).getFrame(),
-               "The change in report directories will take place when " + DTSA2.APP_NAME + " is restarted.", DTSA2.APP_NAME,
-               JOptionPane.INFORMATION_MESSAGE);
-         Preferences.userNodeForPackage(HTMLReport.class).put(sfBASE_PATH, path);
-         return true;
-      }
-      return false;
-   }
 
    public void openInBrowser(Component c) {
       try {

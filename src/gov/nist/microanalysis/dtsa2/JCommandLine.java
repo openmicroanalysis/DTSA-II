@@ -543,7 +543,7 @@ public class JCommandLine extends JTextPane {
       setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.EMPTY_SET);
       writeOutput(InteractiveConsole.getDefaultBanner() + "\n");
 
-      mCmdBuffer = new CommandBuffer(new File(HTMLReport.getBasePath(), "history.txt"), 100);
+      mCmdBuffer = new CommandBuffer(new File(AppPreferences.getInstance().getBaseReportPath(), "history.txt"), 100);
    }
 
    public JythonWorker getJythonWorker() {

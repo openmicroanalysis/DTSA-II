@@ -45,7 +45,6 @@ import com.jgoodies.forms.layout.ConstantSize;
 import com.jgoodies.forms.layout.FormLayout;
 import com.toedter.calendar.JDateChooser;
 
-import gov.nist.microanalysis.EPQDatabase.Session;
 import gov.nist.microanalysis.EPQDatabase.Session.QCNormalizeMode;
 import gov.nist.microanalysis.EPQDatabase.Session.QCProject;
 import gov.nist.microanalysis.EPQLibrary.Composition;
@@ -84,8 +83,6 @@ public class QCWizard
    private final ResultPanel jWizardPanel_Results = new ResultPanel(this);
    private final ExportPanel jWizardPanel_Export = new ExportPanel(this);
    private final ReportPanel jWizardPanel_Report = new ReportPanel(this);
-
-   private final Session mSession;
 
    private Mode mMode = Mode.MEASUREMENT;
    private transient QCProject mProject = null;
@@ -211,7 +208,7 @@ public class QCWizard
          jButton_EditMaterial.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               final Composition res = MaterialsCreator.editMaterial(QCWizard.this, mMaterial, mSession, "Specify a material", false);
+               final Composition res = MaterialsCreator.editMaterial(QCWizard.this, mMaterial, DTSA2.getSession(), "Specify a material", false);
                if(res != null)
                   mMaterial = res;
                jTextField_Material.setText(mMaterial.toString());
@@ -280,7 +277,7 @@ public class QCWizard
       public void onHide() {
          try {
             if(mCreateQCProject) {
-               final QCProject qcp = mSession.createQCProject(mDetector, mMaterial, mBeamEnergy, mCurrentMode, mNominalWD, mNominalI);
+               final QCProject qcp = DTSA2.getSession().createQCProject(mDetector, mMaterial, mBeamEnergy, mCurrentMode, mNominalWD, mNominalI);
                final NumberFormat nf = new HalfUpFormat("0.0");
                mHTMLResult.append("<h3>New QC Project Created</h3>");
                mHTMLResult.append("<p><table>");
@@ -316,7 +313,7 @@ public class QCWizard
          jTextField_BeamEnergy.setEditable(true);
          jTextField_NominalI.setEditable(true);
          jTextField_NominalWD.setEditable(true);
-         final Set<DetectorProperties> dp = mSession.getAllDetectors();
+         final Set<DetectorProperties> dp = DTSA2.getSession().getAllDetectors();
          final DefaultComboBoxModel<DetectorProperties> cbm = new DefaultComboBoxModel<>(dp.toArray(new DetectorProperties[0]));
          jComboBox_Detector.setModel(cbm);
          final DetectorProperties sel = dp.iterator().next();
@@ -391,7 +388,7 @@ public class QCWizard
          if(mDetectorProperties != null) {
             DefaultComboBoxModel<QCProject> cbm;
             try {
-               final Set<QCProject> proj = mSession.findQCProjects(mDetectorProperties);
+               final Set<QCProject> proj = DTSA2.getSession().findQCProjects(mDetectorProperties);
                cbm = new DefaultComboBoxModel<>(proj.toArray(new QCProject[0]));
                if((mProject == null) || (!mProject.getDetector().getDetectorProperties().equals(mDetectorProperties)))
                   mProject = (proj.size() > 0 ? proj.iterator().next() : null);
@@ -434,7 +431,7 @@ public class QCWizard
       @Override
       public void onShow() {
          try {
-            final Set<DetectorProperties> dps = mSession.findDetectorsWithQCProjects();
+            final Set<DetectorProperties> dps = DTSA2.getSession().findDetectorsWithQCProjects();
             final DefaultComboBoxModel<DetectorProperties> cbm = new DefaultComboBoxModel<>(dps.toArray(new DetectorProperties[0]));
             if((mDetectorProperties == null) || (!dps.contains(mDetectorProperties)))
                mDetectorProperties = dps.iterator().next();
@@ -521,7 +518,7 @@ public class QCWizard
                   final ISpectrumData spec = sfc.getSpectra()[0];
                   final SpectrumProperties sp = spec.getProperties();
                   final Date ts = sp.getTimestampWithDefault(SpectrumProperties.AcquisitionTime, new Date());
-                  final DetectorCalibration dc = mSession.getSuitableCalibration(mDetectorProperties, ts);
+                  final DetectorCalibration dc = DTSA2.getSession().getSuitableCalibration(mDetectorProperties, ts);
                   if(dc instanceof EDSCalibration) {
                      boolean assign = SpectrumUtils.areCalibratedSimilar(dc.getProperties(), spec, AppPreferences.DEFAULT_TOLERANCE);
                      if(!assign) {
@@ -569,7 +566,7 @@ public class QCWizard
          jButton_Properties.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QCWizard.this, mSession);
+               final SpectrumPropertyPanel.PropertyDialog pd = new SpectrumPropertyPanel.PropertyDialog(QCWizard.this, DTSA2.getSession());
                pd.addSpectrumProperties(mSpectrum.getProperties());
                pd.setLocationRelativeTo(QCWizard.this);
                pd.setVisible(true);
@@ -902,9 +899,8 @@ public class QCWizard
     * @param owner
     * @param session
     */
-   public QCWizard(Frame owner, Session session) {
+   public QCWizard(Frame owner) {
       super(owner, "Quality control alien", true);
-      mSession = session;
       mMode = Mode.MEASUREMENT;
       setActivePanel(jWizardPanel_Welcome);
    }
@@ -913,9 +909,8 @@ public class QCWizard
     * @param owner
     * @param session
     */
-   public QCWizard(Dialog owner, Session session) {
+   public QCWizard(Dialog owner) {
       super(owner, "Quality control alien", true);
-      mSession = session;
       mMode = Mode.MEASUREMENT;
       setActivePanel(jWizardPanel_Welcome);
    }

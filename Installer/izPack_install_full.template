@@ -126,8 +126,6 @@
             <file override="update" src="$JARPATH/commons-beanutils/commons-beanutils/1.9.4/commons-beanutils-1.9.4.jar" targetdir="$INSTALL_PATH/"/>
             <file override="update" src="$JARPATH/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar" targetdir="$INSTALL_PATH/"/>
             <file override="update" src="$JARPATH/commons-codec/commons-codec/1.15/commons-codec-1.15.jar" targetdir="$INSTALL_PATH/"/>
-            <file override="update" src="$JARPATH/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar" targetdir="$INSTALL_PATH/"/>
-            <file override="update" src="$JARPATH//org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar " targetdir="$INSTALL_PATH/"/>
             <file override="update" src="$JARPATH/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar" targetdir="$INSTALL_PATH/"/>
             <file override="update" src="$JARPATH/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar" targetdir="$INSTALL_PATH/"/>
             <file override="update" src="$JARPATH/commons-logging/commons-logging/1.2/commons-logging-1.2.jar" targetdir="$INSTALL_PATH/"/>

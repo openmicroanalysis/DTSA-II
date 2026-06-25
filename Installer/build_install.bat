@@ -24,13 +24,13 @@ ECHO ***** Performing DTSA-II and Relocate-only Build *****
 )
 
 REM Version information
-SET "D2V=2026-02-06"
-SET "NUM_VER=15.1.49"
+SET "D2V=2026-06-25"
+SET "NUM_VER=15.1.52"
 SET "NAME_VER=Polaris"
 
 REM Build paths
-SET "JDK_VER=24"
-SET "JDK_PATH=C:\Program Files\Eclipse Adoptium\jdk-24.0.2.12-hotspot"
+SET "JDK_VER=26"
+SET "JDK_PATH=C:\Program Files\Eclipse Adoptium\jdk-26.0.1.8-hotspot"
 SET "BPATH=C:\Users\nritchie\repositories"
 SET "IZPACK_HOME=C:\izpack\bin"
 SET "L4J_PATH=C:\Program Files (x86)\Launch4j"
