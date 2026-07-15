@@ -72,7 +72,7 @@ class DTSA2PreferencesDialog extends PreferenceDialog {
 
    private static final long serialVersionUID = -2554799577753596480L;
    static private final String CLEAR = " -- None --";
-   
+
    class BasicPreferences extends PreferencePanel {
 
       private static final long serialVersionUID = -4490213172099255163L;
@@ -181,7 +181,7 @@ class DTSA2PreferencesDialog extends PreferenceDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                int sel = jList_JythonLibs.getSelectedIndex();
-               if(sel!=-1) {
+               if (sel != -1) {
                   model_JythonLibs.remove(sel);
                }
             }
@@ -821,7 +821,7 @@ class DTSA2PreferencesDialog extends PreferenceDialog {
                   for (final Component c : SiLiPanel.this.getComponents())
                      if (c instanceof JTextField)
                         ((JTextField) c).setBackground(SystemColor.text);
-                  final Color updatedColor = Color.yellow;
+                  final Color updatedColor = new Color(255, 255, 192);
                   if (props.isDefined(SpectrumProperties.DetectorDescription)) {
                      jTextField_Name.setText(props.getTextWithDefault(SpectrumProperties.DetectorDescription, "Detector"));
                      jTextField_Name.setBackground(updatedColor);
@@ -893,6 +893,11 @@ class DTSA2PreferencesDialog extends PreferenceDialog {
                   if (props.isDefined(SpectrumProperties.Resolution)) {
                      jTextField_Resolution.setValue(SpectrumUtils.getFWHMAtMnKA(props, 130.0));
                      jTextField_Resolution.setBackground(updatedColor);
+                  }
+                  if (props.isDefined(SpectrumProperties.DetectorWindow)) {
+                     var dw = props.getObjectWithDefault(SpectrumProperties.DetectorWindow, null);
+                     jComboBox_Window.setSelectedItem(dw.toString());
+                     jComboBox_Window.setBackground(updatedColor);
                   }
                   getPreferenceDialog().setMessage("Imported properties have been highlighted.");
                }
@@ -1038,6 +1043,13 @@ class DTSA2PreferencesDialog extends PreferenceDialog {
             jTextField_NiLayer.setValue(dp.getNumericWithDefault(SpectrumProperties.NickelLayer, 0.0));
             jTextField_DeadLayer.setValue(dp.getNumericWithDefault(SpectrumProperties.DeadLayer, 0.1));
             jTextField_Thickness.setValue(dp.getNumericWithDefault(SpectrumProperties.DetectorThickness, 5.0));
+            {
+               var dw = dp.getObjectWithDefault(SpectrumProperties.DetectorWindow, null);
+               if (dw != null) {
+                  var dw_str = dw.toString();
+                  jComboBox_Window.setSelectedItem(dw_str);
+               }
+            }
             jTextField_NChannels.setValue(mOriginal.getChannelCount());
             jTextField_ZPD.setValue(dp.getNumericWithDefault(SpectrumProperties.ZeroPeakDiscriminator, 0.0));
          }
