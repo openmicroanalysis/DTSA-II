@@ -5,7 +5,7 @@
   <jar>relocate-NUMBER_VERSION.jar</jar>
   <outfile>DTSA-II Build\Relocate.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine></cmdLine>
+  <cmdLine>--enable-preview</cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>https://adoptium.net/temurin/releases/?version=JDK_VERSION</downloadUrl>
@@ -21,7 +21,7 @@
     <minVersion>1.JDK_VERSION.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
-    <runtimeBits>64/32</runtimeBits>
+    <opt>--enable-preview</opt>
   </jre>
   <versionInfo>
     <fileVersion>NUMBER_VERSION.0</fileVersion>

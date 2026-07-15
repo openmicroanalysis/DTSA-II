@@ -5,7 +5,7 @@
   <jar>dtsa2-NUMBER_VERSION.jar</jar>
   <outfile>DTSA-II Build/DTSA-II.exe</outfile>
   <errTitle>NIST DTSA-II</errTitle>
-  <cmdLine></cmdLine>
+  <cmdLine>--enable-preview</cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
   <downloadUrl>https://adoptium.net/temurin/releases/?version=JDK_VERSION</downloadUrl>
@@ -22,6 +22,7 @@
     <maxVersion></maxVersion>
     <initialHeapPercent>10</initialHeapPercent>
     <maxHeapPercent>70</maxHeapPercent>
+    <opt>--enable-preview</opt>
   </jre>
   <versionInfo>
     <fileVersion>NUMBER_VERSION.0</fileVersion>
